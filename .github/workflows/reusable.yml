@@ -1,0 +1,42 @@
+name: Reusable summary workflow
+
+on:
+  workflow_call:
+    inputs:
+      numbers:
+        description: 'JSON array of numbers as a string'
+        type: string
+        required: true
+        default: '[1,2,3]'
+    outputs:
+      summary:
+        description: 'Summary produced by the composite action (JSON)'
+        value: ${{ jobs.summarize.outputs.summary }}
+      summary_text:
+        description: 'Human-readable summary text'
+        value: ${{ jobs.summarize.outputs.summary_text }}
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    outputs:
+      summary: ${{ steps.call-summary.outputs.summary }}
+      summary_text: ${{ steps.format.outputs.summary_text }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Call summary composite action
+        id: call-summary
+        uses: ./.github/actions/summary-action
+        with:
+          numbers: ${{ inputs.numbers }}
+
+      - name: Format summary (create human-readable text)
+        id: format
+        shell: bash
+        run: |
+          printf '%s' '${{ steps.call-summary.outputs.summary }}' > summary.json || true
+          echo "summary_text=$(cat summary.json)" >> $GITHUB_OUTPUT
+          
+          python3 ./ci/format_summary.py summary.json > summary_text.txt
+          echo "summary_text=$(cat summary_text.txt)" >> $GITHUB_OUTPUT
