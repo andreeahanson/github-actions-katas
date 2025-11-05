@@ -1,0 +1,23 @@
+name: Summary action
+description: "Pipe numbers into a Python helper and print a small summary"
+inputs:
+  numbers:
+    description: 'JSON array of numbers as a string, e.g. "[1,2,3]"'
+    required: true
+outputs:
+  summary:
+    description: 'JSON summary produced by the helper'
+    value: ${{ steps.set-output.outputs.summary }}
+runs:
+  using: "composite"
+  steps:
+    - name: Run python summarizer (stdin)
+      shell: bash
+      run: |
+        echo "${{ inputs.numbers }}" | python3 ci/print_summary.py > summary.json
+        cat summary.json
+
+    - name: Set output
+      id: set-output
+      shell: bash
+      run: echo "summary=$(cat summary.json)" >> $GITHUB_OUTPUT
