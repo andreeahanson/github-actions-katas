@@ -18,6 +18,9 @@ jobs:
         uses: ./hello-world-docker-action
         with:
           who-to-greet: 'GitHub Actions Student'
+          greeting-type: 'Hi'
           
-      - name: Use the output
-        run: echo "The time was ${{ steps.hello.outputs.time }}"
+      - name: Use the outputs
+        run: |
+          echo "The time was: ${{ steps.hello.outputs.time }}"
+          echo "The message was: ${{ steps.hello.outputs.message }}"
