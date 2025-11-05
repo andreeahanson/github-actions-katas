@@ -6,13 +6,20 @@ inputs:
     description: 'Who to greet'
     required: true
     default: 'World'
+  greeting-type:
+    description: 'Type of greeting (hello, hi, hey)'
+    required: false
+    default: 'Hello'
 
 outputs:
   time:
     description: 'The time we greeted you'
+  message:
+    description: 'The full greeting message'
 
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
+    - ${{ inputs.greeting-type }}
     - ${{ inputs.who-to-greet }}
